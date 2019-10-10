@@ -1,11 +1,11 @@
-from __future__ import division, print_function, absolute_import
+# -*- coding: utf-8 -*-
 
-import numpy as np
-import pandas as pd
 import itertools
 
+import numpy as np
+
 from . import traveling_waves as tw
-from . traveling_waves import real_freq_map, get_nearest_cf
+from .traveling_waves import real_freq_map, get_nearest_cf
 
 from . holmberg2007_vesicles import run_holmberg2007_vesicles
 
@@ -72,46 +72,38 @@ def run_holmberg2007(
     else:
         cfs = cf
 
-
     assert set(cfs) <= set(tw.real_freq_map), set(cfs) - set(tw.real_freq_map)
-
 
     duration = len(sound) / fs
 
-
-
-    ### Outer ear filter
+    # Outer ear filter
     sound_oe = tw.run_outer_ear_filter(sound, fs)
 
-    ### Middle ear filter
+    # Middle ear filter
     sound_me = tw.run_middle_ear_filter(sound_oe, fs)
 
-    ### Scaling
+    # Scaling
     sound_scaled = sound_me * tw.scaling_factor
 
-    ### Basilar membrane
+    # Basilar membrane
     xbm = tw.run_bm_wave(sound_scaled, fs)
-
 
     ihcrp = {}
     for cf in cfs:
-        ### Amplification
+        # Amplification
         lcr4 = tw.run_lcr4(xbm[cf], fs, cf)
 
-        ### Delay correction (1/cf)
+        # Delay correction (1/cf)
         sec = np.where(tw.real_freq_map == cf)[0][0]
         lcr4_rolled = np.roll(
             lcr4,
             -int(np.round(tw.delay_time[99-sec]*fs))
         )
 
-        ### IHCRP
+        # IHCRP
         ihcrp[cf] = tw.run_ihcrp(lcr4_rolled, fs, cf)
 
-
-
     anf_types = np.repeat(['hsr', 'msr', 'lsr'], anf_num)
-
 
     ihc_meddis2000_pars = {
         'hsr': {                # H2 fiber from Sumner et al. (2002)
@@ -166,26 +158,25 @@ def run_holmberg2007(
 
     psps = {}
     trains = []
-    for cf,anf_type in itertools.product(ihcrp.keys(),anf_types):
+    for cf, anf_type in itertools.product(ihcrp.keys(), anf_types):
 
-        if (syn_mode == 'quantal') or ((cf,anf_type) not in psps):
-            ### IHC and Synapse
+        if (syn_mode == 'quantal') or ((cf, anf_type) not in psps):
+            # IHC and Synapse
             psp = tw.run_ihc_meddis2000(
                 ihcrp=ihcrp[cf],
                 fs=fs,
                 syn_mode=syn_mode,
                 **ihc_meddis2000_pars[anf_type]
             )
-            psps[cf,anf_type] = psp
+            psps[cf, anf_type] = psp
 
-        elif (syn_mode == 'probability') and ((cf,anf_type) in psps):
-            psp = psps[cf,anf_type]
+        elif (syn_mode == 'probability') and ((cf, anf_type) in psps):
+            psp = psps[cf, anf_type]
 
         else:
             raise RuntimeError
 
-
-        ### Spike generator (pars from Sumner et al. 2002)
+        # Spike generator (pars from Sumner et al. 2002)
         spikes = tw.run_an_sg_carney_holmberg2007(
             psp=psp,
             fs=fs,
@@ -198,11 +189,10 @@ def run_holmberg2007(
 
         trains.append({
             'spikes': spikes,
+            'offset': 0.0,
             'duration': duration,
             'cf': cf,
             'type': anf_type
         })
 
-
-    spike_trains = pd.DataFrame(trains)
-    return spike_trains
+    return trains
