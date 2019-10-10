@@ -1,5 +1,5 @@
-#+TITLE: TODO list for cochlea
+#+TITLE: TODO list for cochlea3
 #+AUTHOR: Marek Rudnicki
-#+CATEGORY: cochlea
+#+CATEGORY: cochlea3
 
-* TODO [#C] Add Python 3 compatibility
+* TODO Move to Python 3
