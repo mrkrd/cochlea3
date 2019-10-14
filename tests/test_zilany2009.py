@@ -1,7 +1,4 @@
-#!/usr/bin/env python3
-
-import numpy as np
-from numpy.testing import assert_almost_equal, assert_equal
+from numpy.testing import assert_almost_equal
 
 import os
 from os.path import join
@@ -15,7 +12,6 @@ DATADIR = os.path.join(
     os.path.dirname(__file__),
     'data_zilany2009'
 )
-
 
 
 def test_ihc():

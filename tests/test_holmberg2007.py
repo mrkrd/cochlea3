@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_equal
 
@@ -36,12 +34,9 @@ def test_bm_wave():
     )
 
 
-
-
-
 def test_lcr4():
 
-    data = np.load(join(DATADIR,'holmberg2007.npz'))
+    data = np.load(join(DATADIR, 'holmberg2007.npz'))
     xbm = data['xbm']
     lcr4_target = data['lcr4']
     channel = int(data['channel'])
@@ -59,10 +54,9 @@ def test_lcr4():
     )
 
 
-
 def test_ihcrp():
 
-    data = np.load(join(DATADIR,'holmberg2007.npz'))
+    data = np.load(join(DATADIR, 'holmberg2007.npz'))
     fs = data['fs']
     lcr4 = data['lcr4']
     ihcrp_target = data['ihcrp']
@@ -80,8 +74,6 @@ def test_ihcrp():
         ihcrp_target,
         decimal=16
     )
-
-
 
 
 def test_ihc_meddis2000():
@@ -119,24 +111,3 @@ def test_ihc_meddis2000():
         psp_target,
         decimal=16
     )
-
-
-
-# def test_an_sg_carney_holmberg2007():
-
-#     data = np.load('data/holmberg2007.npz')
-
-#     fs = data['fs']
-#     psp = data['psp']
-
-#     an = tw.run_an_sg_carney_holmberg2007(
-#         psp=psp,
-#         fs=fs,
-#         c0=0.5,
-#         c1=0.5,
-#         s0=1e-3,
-#         s1=12.5e-3,
-#         refractory_period=0.75e-3
-#     )
-
-#     print(an)
