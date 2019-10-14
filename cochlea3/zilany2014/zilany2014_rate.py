@@ -1,11 +1,10 @@
-from __future__ import division, print_function, absolute_import
 
 import itertools
 import numpy as np
-import pandas as pd
 
 from . import _zilany2014
 from . util import calc_cfs
+
 
 def run_zilany2014_rate(
         sound,
@@ -24,8 +23,8 @@ def run_zilany2014_rate(
 
     Notes
     -----
-    This implementation is was not used very much and may have some
-    problems.  Use with caution!  (Like any implementation here, BTW)
+    This implementation is was not used extensively.  Use at your own
+    risk!
 
 
     References
@@ -40,7 +39,6 @@ def run_zilany2014_rate(
     assert np.max(sound) < 1000, "Signal should be given in Pa"
     assert sound.ndim == 1
     assert species in ('cat', 'human')
-
 
     if isinstance(anf_types, str):
         anf_types = [anf_types]
@@ -62,8 +60,7 @@ def run_zilany2014_rate(
         for cf in cfs
     ]
 
-
-    ### Run model for each channel
+    # Run model for each channel
     nested_results = map(
         _run_channel,
         channel_args
@@ -71,23 +68,7 @@ def run_zilany2014_rate(
 
     results = list(itertools.chain(*nested_results))
 
-    columns = pd.MultiIndex.from_tuples(
-        [(r['anf_type'],r['cf']) for r in results],
-        names=['anf_type','cf']
-    )
-    rates = np.array([r['rate'] for r in results]).T
-
-    rates = pd.DataFrame(
-        rates,
-        columns=columns
-    )
-
-    if isinstance(np.fft.fftpack._fft_cache, dict):
-        np.fft.fftpack._fft_cache = {}
-
-    return rates
-
-
+    return results
 
 
 def _run_channel(args):
@@ -102,8 +83,7 @@ def _run_channel(args):
     species = args['species']
     ffGn = args['ffGn']
 
-
-    ### Run BM, IHC
+    # Run BM, IHC
     vihc = _zilany2014.run_ihc(
         signal=signal,
         cf=cf,
@@ -113,14 +93,10 @@ def _run_channel(args):
         cihc=float(cihc)
     )
 
-
-    duration = len(vihc) / fs
-
-
     rates = []
     for anf_type in anf_types:
 
-        ### Run synapse
+        # Run synapse
         synout = _zilany2014.run_synapse(
             fs=fs,
             vihc=vihc,
