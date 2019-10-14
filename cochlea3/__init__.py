@@ -8,7 +8,7 @@ import numpy as np
 
 from .holmberg2007 import run_holmberg2007
 from .holmberg2007 import run_holmberg2007_vesicles
-# from .zilany2009 import run_zilany2009
+from .zilany2009 import run_zilany2009
 # from .zilany2014 import run_zilany2014
 # from .zilany2014 import run_zilany2014_rate
 

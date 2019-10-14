@@ -1,8 +1,5 @@
-from __future__ import division, print_function, absolute_import
-
 import itertools
 import numpy as np
-import pandas as pd
 
 from . import _pycat
 
@@ -82,19 +79,15 @@ def run_zilany2009(
     assert np.max(sound) < 1000, "Signal should be given in Pa"
     assert sound.ndim == 1
 
-
     np.random.seed(seed)
-
 
     cfs = _calc_cfs(cf)
 
-
-    ### Run Middle Ear filter
+    # Run Middle Ear filter
     meout = _pycat.run_middle_ear_filter(
         signal=sound,
         fs=fs
     )
-
 
     channel_args = [
         {
@@ -109,25 +102,20 @@ def run_zilany2009(
         for freq in cfs
     ]
 
-
-    ### Run model for each channel
+    # Run model for each channel
     nested = map(
         _run_channel,
         channel_args
     )
 
-
-    ### Unpack the results
+    # Unpack the results
     trains = itertools.chain(*nested)
-    spike_trains = pd.DataFrame(list(trains))
-
+    spike_trains = list(trains)
 
     if isinstance(np.fft.fftpack._fft_cache, dict):
         np.fft.fftpack._fft_cache = {}
 
     return spike_trains
-
-
 
 
 def _run_channel(args):
@@ -140,8 +128,7 @@ def _run_channel(args):
     powerlaw = args['powerlaw']
     anf_num = args['anf_num']
 
-
-    ### Run BM, IHC
+    # Run BM, IHC
     vihc = _pycat.run_ihc(
         signal=signal,
         cf=cf,
@@ -149,7 +136,6 @@ def _run_channel(args):
         cohc=float(cohc),
         cihc=float(cihc)
     )
-
 
     duration = len(vihc) / fs
     anf_types = np.repeat(['hsr', 'msr', 'lsr'], anf_num)
@@ -159,7 +145,7 @@ def _run_channel(args):
     for anf_type in anf_types:
 
         if (anf_type not in synout):
-            ### Run synapse
+            # Run synapse
             synout[anf_type] = _pycat.run_synapse(
                 fs=fs,
                 vihc=vihc,
@@ -169,25 +155,21 @@ def _run_channel(args):
                 ffGn=False
             )
 
-        ### Run spike generator
+        # Run spike generator
         spikes = _pycat.run_spike_generator(
             synout=synout[anf_type],
             fs=fs,
         )
 
-
         trains.append({
             'spikes': spikes,
             'duration': duration,
+            'offset': 0,
             'cf': args['cf'],
             'type': anf_type
         })
 
-
     return trains
-
-
-
 
 
 def _calc_cfs(cf):
@@ -204,11 +186,11 @@ def _calc_cfs(cf):
 
         freq_min, freq_max, freq_num = cf
 
-        xmin = np.log10( freq_min / aA + k) / a
-        xmax = np.log10( freq_max / aA + k) / a
+        xmin = np.log10(freq_min / aA + k) / a
+        xmax = np.log10(freq_max / aA + k) / a
 
         x_map = np.linspace(xmin, xmax, freq_num)
-        cfs = aA * ( 10**( a*x_map ) - k)
+        cfs = aA * (10**(a*x_map) - k)
 
     elif isinstance(cf, list) or isinstance(cf, np.ndarray):
         cfs = cf

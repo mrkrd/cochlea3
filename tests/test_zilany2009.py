@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-from __future__ import division, print_function, absolute_import
+#!/usr/bin/env python3
 
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_equal
@@ -10,7 +8,7 @@ from os.path import join
 
 import scipy.io
 
-import cochlea.zilany2009._pycat as pycat
+import cochlea3.zilany2009._pycat as pycat
 
 
 DATADIR = os.path.join(

@@ -1,4 +1,6 @@
-"""Copyright 2009-2014 Marek Rudnicki
+# cython: language_level=3
+
+"""Copyright 2009-2019 Marek Rudnicki
 
 This file is part of cochlea.
 
@@ -20,7 +22,7 @@ along with cochlea.  If not, see <http://www.gnu.org/licenses/>.
 import numpy as np
 from libc.stdlib cimport malloc
 import scipy.signal as dsp
-import ffGn_module
+from . import ffGn_module
 
 cimport numpy as np
 
