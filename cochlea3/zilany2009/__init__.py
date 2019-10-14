@@ -164,7 +164,7 @@ def _run_channel(args):
         trains.append({
             'spikes': spikes,
             'duration': duration,
-            'offset': 0,
+            'offset': 0.0,
             'cf': args['cf'],
             'type': anf_type
         })

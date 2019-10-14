@@ -4,8 +4,6 @@ TODO: Unit test against the oryginal.
 
 """
 
-from __future__ import division, print_function, absolute_import
-
 import numpy as np
 from numpy.random import randn
 from scipy.signal import resample
@@ -18,13 +16,11 @@ def ffGn(N, tdres, Hinput, noiseType, mu, sigma=1, random_debug=None):
     assert (tdres < 1)
     assert (Hinput >= 0) and (Hinput <= 2)
 
-
     # Here we change the meaning of `noiseType', if it's 0, then we
     # return no noise at all.  If necessary, the seed can be set
     # outside by calling np.radnom.seed().
     if noiseType == 0:
         return np.zeros(N)
-
 
     # Downsampling No. of points to match with those of Scott jackson (tau 1e-1)
     resamp = int(np.ceil(1e-1 / tdres))
@@ -41,8 +37,6 @@ def ffGn(N, tdres, Hinput, noiseType, mu, sigma=1, random_debug=None):
         H = Hinput - 1
         fBn = 1
 
-
-
     # Calculate the fGn.
     if H == 0.5:
         # If H=0.5, then fGn is equivalent to white Gaussian noise.
@@ -55,8 +49,8 @@ def ffGn(N, tdres, Hinput, noiseType, mu, sigma=1, random_debug=None):
         Nfft = int(2 ** np.ceil(np.log2(2*(N-1))))
         NfftHalf = np.round(Nfft / 2)
 
-        k = np.concatenate( (np.arange(0,NfftHalf), np.arange(NfftHalf,0,-1)) )
-        Zmag = 0.5 * ( (k+1)**(2*H) -2*k**(2*H) + np.abs(k-1)**(2*H) )
+        k = np.concatenate((np.arange(0, NfftHalf), np.arange(NfftHalf, 0, -1)))
+        Zmag = 0.5 * ((k+1)**(2*H) - 2*k**(2*H) + np.abs(k-1)**(2*H))
 
         Zmag = np.real(fft(Zmag))
         assert np.all(Zmag >= 0)
@@ -76,10 +70,8 @@ def ffGn(N, tdres, Hinput, noiseType, mu, sigma=1, random_debug=None):
         if fBn == 1:
             y = np.cumsum(y)
 
-
         # Resampling to match with the AN model
         y = resample(y, resamp*len(y))
-
 
         if mu < 0.5:
             sigma = 3
@@ -88,11 +80,9 @@ def ffGn(N, tdres, Hinput, noiseType, mu, sigma=1, random_debug=None):
         else:
             sigma = 200         # 40 when added after powerlaw
 
-
         y = y*sigma
 
         return y[0:nop]
-
 
 
 def calc_cfs(cf, species):
@@ -112,7 +102,7 @@ def calc_cfs(cf, species):
         xmax = np.log10(freq_max / aA + k) / a
 
         x_map = np.linspace(xmin, xmax, freq_num)
-        cfs = aA * ( 10**( a*x_map ) - k)
+        cfs = aA * (10**(a*x_map) - k)
 
     elif isinstance(cf, tuple) and ('human' in species):
         # Based on GenerateGreenwood_CFList() from DSAM
@@ -127,7 +117,7 @@ def calc_cfs(cf, species):
         xmax = np.log10(freq_max / aA + k) / a
 
         x_map = np.linspace(xmin, xmax, freq_num)
-        cfs = aA * ( 10**( a*x_map ) - k)
+        cfs = aA * (10**(a*x_map) - k)
 
     elif isinstance(cf, list) or isinstance(cf, np.ndarray):
         cfs = cf

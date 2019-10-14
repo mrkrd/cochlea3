@@ -9,13 +9,14 @@ import scipy.io
 import os
 from os.path import join
 
-import cochlea.zilany2014._zilany2014 as zilany2014
-from cochlea.zilany2014.util import ffGn
+import cochlea3.zilany2014._zilany2014 as zilany2014
+from cochlea3.zilany2014.util import ffGn
 
 DATADIR = os.path.join(
     os.path.dirname(__file__),
     'data_zilany2014'
 )
+
 
 def test_ihc():
 

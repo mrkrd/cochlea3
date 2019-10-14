@@ -1,3 +1,5 @@
+# cython: language_level=3
+
 # Copyright 2013-2014 Marek Rudnicki
 
 # This file is part of cochlea.
@@ -14,9 +16,6 @@
 
 # You should have received a copy of the GNU General Public License
 # along with cochlea.  If not, see <http://www.gnu.org/licenses/>.
-
-
-from __future__ import division, print_function, absolute_import
 
 import numpy as np
 from libc.stdlib cimport malloc
@@ -41,6 +40,7 @@ cdef extern from "model_IHC.h":
         int species,
         double *ihcout
     )
+
 
 cdef extern from "model_Synapse.h":
     double Synapse(
@@ -78,7 +78,6 @@ cdef extern from "numpy/arrayobject.h":
     )
 
 
-
 np.import_array()
 
 
@@ -112,14 +111,13 @@ def run_ihc(
 
     """
     if species == 'cat':
-        assert (cf > 124.9) and (cf < 40e3), "Wrong CF: 125 <= cf < 40e3, CF = %s"%str(cf)
+        assert (cf > 124.9) and (cf < 40e3), "Wrong CF: 125 <= cf < 40e3, CF = %s" % str(cf)
     elif 'human' in species:
-        assert (cf > 124.9) and (cf < 20001.), "Wrong CF: 125 <= cf <= 20e3, CF = %s"%str(cf)
+        assert (cf > 124.9) and (cf < 20001.), "Wrong CF: 125 <= cf <= 20e3, CF = %s" % str(cf)
 
     assert (fs >= 100e3) and (fs <= 500e3), "Wrong Fs: 100e3 <= fs <= 500e3"
     assert (cohc >= 0) and (cohc <= 1), "0 <= cohc <= 1"
     assert (cihc >= 0) and (cihc <= 1), "0 <= cihc <= 1"
-
 
     species_map = {
         'cat': 1,
@@ -133,9 +131,8 @@ def run_ihc(
     cdef double *signal_data = <double *>np.PyArray_DATA(signal)
 
     # Output IHC voltage
-    ihcout = np.zeros( len(signal) )
+    ihcout = np.zeros(len(signal))
     cdef double *ihcout_data = <double *>np.PyArray_DATA(ihcout)
-
 
     IHCAN(
         signal_data,
@@ -149,10 +146,7 @@ def run_ihc(
         ihcout_data
     )
 
-
     return ihcout
-
-
 
 
 def run_synapse(
@@ -174,7 +168,7 @@ def run_synapse(
     return: PSTH from ANF
 
     """
-    assert (cf > 79.9) and (cf < 40e3), "Wrong CF: 80 <= cf < 40e3, CF = %s"%str(cf)
+    assert (cf > 79.9) and (cf < 40e3), "Wrong CF: 80 <= cf < 40e3, CF = %s" % str(cf)
     assert (fs >= 100e3) and (fs <= 500e3), "Wrong Fs: 100e3 <= fs <= 500e3"
     assert anf_type in ['hsr', 'msr', 'lsr'], "anf_type not hsr/msr/lsr"
     assert powerlaw in ['actual', 'approximate'], "powerlaw not actual/approximate"
@@ -195,17 +189,14 @@ def run_synapse(
     else:
         noise_type = 0.
 
-
     # Input IHC voltage
     if not vihc.flags['C_CONTIGUOUS']:
         vihc = vihc.copy(order='C')
     cdef double *vihc_data = <double *>np.PyArray_DATA(vihc)
 
-
     # Output synapse data (spiking probabilities)
     synout = np.zeros_like(vihc)
     cdef double *synout_data = <double *>np.PyArray_DATA(synout)
-
 
     # Run synapse model
     Synapse(
@@ -245,7 +236,6 @@ def run_spike_generator(
     sptimes = np.zeros(int(np.ceil(len(synout)/0.00075/fs)))
     cdef double *sptimes_data = <double *>np.PyArray_DATA(sptimes)
 
-
     # Run synapse model
     SpikeGenerator(
         synout_data,            # synouttmp
@@ -260,7 +250,6 @@ def run_spike_generator(
     return spikes
 
 
-
 cdef public double* generate_random_numbers(long length):
     arr = np.random.rand(length)
 
@@ -272,8 +261,6 @@ cdef public double* generate_random_numbers(long length):
     memcpy(out_ptr, data_ptr, length*sizeof(double))
 
     return out_ptr
-
-
 
 
 cdef public double* decimate(
@@ -299,12 +286,10 @@ cdef public double* decimate(
         <void *>signal          # data
     )
 
-
     # resampled = dsp.resample(
     #     signal_arr,
     #     len(signal_arr) // q
     # )
-
 
     b = dsp.firwin(q+1, 1./q, window='hamming')
     a = [1.]
@@ -317,10 +302,8 @@ cdef public double* decimate(
 
     resampled = filtered[::q]
 
-
     if not resampled.flags['C_CONTIGUOUS']:
         resampled = resampled.copy(order='C')
-
 
     # Copy data to output array
     cdef double *resampled_ptr = <double *>np.PyArray_DATA(resampled)

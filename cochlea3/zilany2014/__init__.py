@@ -1,8 +1,6 @@
-from __future__ import division, print_function, absolute_import
 
 import itertools
 import numpy as np
-import pandas as pd
 
 from . import _zilany2014
 from . util import calc_cfs
@@ -97,32 +95,26 @@ def run_zilany2014(
             'cihc': cihc,
             'anf_num': anf_num,
             'powerlaw': powerlaw,
-            'seed': seed,
             'species': species,
             'ffGn': ffGn,
         }
         for cf in cfs
     ]
 
-
-    ### Run model for each channel
+    # Run model for each channel
     nested = map(
         _run_channel,
         channel_args
     )
 
-
-    ### Unpack the results
+    # Unpack the results
     trains = itertools.chain(*nested)
-    spike_trains = pd.DataFrame(list(trains))
-
+    spike_trains = list(trains)
 
     if isinstance(np.fft.fftpack._fft_cache, dict):
         np.fft.fftpack._fft_cache = {}
 
     return spike_trains
-
-
 
 
 def _run_channel(args):
@@ -133,13 +125,11 @@ def _run_channel(args):
     cohc = args['cohc']
     cihc = args['cihc']
     powerlaw = args['powerlaw']
-    seed = args['seed']
     anf_num = args['anf_num']
     species = args['species']
     ffGn = args['ffGn']
 
-
-    ### Run BM, IHC
+    # Run BM, IHC
     vihc = _zilany2014.run_ihc(
         signal=signal,
         cf=cf,
@@ -149,7 +139,6 @@ def _run_channel(args):
         cihc=float(cihc)
     )
 
-
     duration = len(vihc) / fs
     anf_types = np.repeat(['hsr', 'msr', 'lsr'], anf_num)
 
@@ -158,7 +147,7 @@ def _run_channel(args):
     for anf_type in anf_types:
 
         if (anf_type not in synout) or ffGn:
-            ### Run synapse
+            # Run synapse
             synout[anf_type] = _zilany2014.run_synapse(
                 fs=fs,
                 vihc=vihc,
@@ -168,19 +157,18 @@ def _run_channel(args):
                 ffGn=ffGn
             )
 
-        ### Run spike generator
+        # Run spike generator
         spikes = _zilany2014.run_spike_generator(
             synout=synout[anf_type],
             fs=fs,
         )
 
-
         trains.append({
             'spikes': spikes,
             'duration': duration,
+            'offset': 0.0,
             'cf': args['cf'],
             'type': anf_type
         })
-
 
     return trains
