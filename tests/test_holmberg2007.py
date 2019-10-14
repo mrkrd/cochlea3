@@ -6,7 +6,7 @@ from numpy.testing import assert_almost_equal, assert_equal
 import os
 from os.path import join
 
-import cochlea.holmberg2007.traveling_waves as tw
+import cochlea3.holmberg2007.traveling_waves as tw
 
 
 DATADIR = os.path.join(

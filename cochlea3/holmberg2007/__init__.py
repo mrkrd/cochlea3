@@ -7,7 +7,7 @@ import numpy as np
 from . import traveling_waves as tw
 from .traveling_waves import real_freq_map, get_nearest_cf
 
-from . holmberg2007_vesicles import run_holmberg2007_vesicles
+from .holmberg2007_vesicles import run_holmberg2007_vesicles
 
 
 def run_holmberg2007(

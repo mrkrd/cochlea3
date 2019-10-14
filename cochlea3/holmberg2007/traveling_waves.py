@@ -1,9 +1,8 @@
-from __future__ import division, print_function, absolute_import
 
 import numpy as np
 import scipy.signal as dsp
 
-from cochlea.holmberg2007.bm_pars import (
+from .bm_pars import (
     real_freq_map,
     S_ST,
     S_ED,
@@ -14,7 +13,7 @@ from cochlea.holmberg2007.bm_pars import (
     outer_ear_b_100kHz,
     delay_time,
 )
-from . _traveling_waves import (
+from ._traveling_waves import (
     run_bm_wave,
     run_lcr4,
     run_ihcrp,
