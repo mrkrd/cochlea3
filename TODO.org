@@ -9,3 +9,8 @@
 * TODO Update INSTALL
 
 * TODO Update examples
+
+* TODO Link from cochlea
+
+  - [ ] README
+  - [ ] issues
