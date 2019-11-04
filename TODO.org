@@ -2,4 +2,10 @@
 #+AUTHOR: Marek Rudnicki
 #+CATEGORY: cochlea3
 
-* TODO Move to Python 3
+* DONE Move to Python 3
+
+* TODO Update README
+
+* TODO Update INSTALL
+
+* TODO Update examples
