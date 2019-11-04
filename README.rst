@@ -1,17 +1,17 @@
-cochlea
-=======
+cochlea3
+========
 
-*cochlea* is a collection of inner ear models.  All models are easily
-accessible as Python functions.  They take sound signal as input and
+*cochlea3* is a collection of inner ear models.  All models are easily
+accessible as Python3 functions.  They take sound signal as input and
 return `spike trains`_ of the auditory nerve fibers::
 
 
 
-                           +-----------+     __|______|______|____
-   .-.     .-.     .-.     |           |-->  _|________|______|___
-  /   \   /   \   /   \ -->|  Cochlea  |-->  ___|______|____|_____
-       '-'     '-'         |           |-->  __|______|______|____
-                           +-----------+
+                           +----------+     __|______|______|____
+   .-.     .-.     .-.     |          |-->  _|________|______|___
+  /   \   /   \   /   \ -->| Cochlea3 |-->  ___|______|____|_____
+       '-'     '-'         |          |-->  __|______|______|____
+                           +----------+
             Sound                               Spike Trains
                                               (Auditory Nerve)
 
@@ -20,21 +20,22 @@ return `spike trains`_ of the auditory nerve fibers::
 The package contains state-of-the-art biophysical models, which give
 realistic approximation of the auditory nerve activity.
 
-The models are implemented using the original code from their authors
-whenever possible.  Therefore, they return the same results as the
-original models.  We made an effort to verify it with unit testing
-(see tests directory for details).
+Whenever possible, the models were implemented using the original code
+from their authors.  As a result, they provide the same responses as
+the original models.  In most cases, it was verified by the unit
+testing (see tests directory for details).
 
 The implementation is also fast.  It is easy to generate responses of
-hundreds or even thousands of auditory nerve fibers (ANFs).  It is
-possible, for example, to generate responses of the whole human
-auditory nerve (around 30,000 ANFs).  We usually tested the models
-with sounds up to 1 second in duration.
+hundreds or even thousands of auditory nerve fibers (ANFs).  For
+example, one can generate responses of the whole human auditory nerve
+(around 30,000 ANFs).  The models were usually tested with sounds of
+up to 1 second in duration.
+
+*cochlea3* is derived from *cochlea* but with Python 3 support and
+some minor changes.
 
 I developed *cochlea* during my PhD in the group of Werner Hemmert
-(`Bio-Inspired Information Processing`_) at the TUM.  It went through
-several versions and rewrites.  Now, it is quite stable and we decided
-to release it for the community.
+(`Bio-Inspired Information Processing`_) at the TUM.
 
 .. _`spike trains`: https://en.wikipedia.org/wiki/Spike_train
 .. _`Bio-Inspired Information Processing`: https://www.ei.tum.de/en/bai/home/
@@ -44,10 +45,10 @@ to release it for the community.
 Features
 --------
 
-- State of the art inner ear models accessible from Python.
+- State of the art inner ear models accessible from Python 3.
 - Contains full biophysical inner ear models: sound in, spikes out.
 - Fast; can generate thousands of spike trains.
-- Interoperability with neuron simulation software such as NEURON_ and Brian_.
+- Can be used with with neuron simulation software such as NEURON_ or Brian_.
 
 .. _NEURON: http://www.neuron.yale.edu/neuron/
 .. _Brian: http://briansimulator.org/
@@ -70,29 +71,15 @@ Implemented Models
   parameters and expanded simulation options for a model of the
   auditory periphery. The Journal of the Acoustical Society of
   America, 135(1), 283-286.
-- `MATLAB Auditory Periphery`_ by Meddis et al. (external model, not
-  implemented in the package, but easily accessible through
-  matlab_wrapper_).
-
-
-.. _`MATLAB Auditory Periphery`: http://www.essexpsychology.macmate.me/HearingLab/modelling.html
-.. _matlab_wrapper: https://github.com/mrkrd/matlab_wrapper
-
 
 
 
 Usage
 -----
 
-Check our online DEMO_ and examples_ (probably the easiest is to start
-with `run_zilany2014.py`_).
-
-
 Initialize the modules::
 
-  import cochlea
-  import thorns as th
-  import thorns.waves as wv
+  import cochlea3
 
 
 Generate sound::
@@ -124,15 +111,10 @@ Plot the results::
   th.show()
 
 
-You can browse through the API documentation at:
-https://pythonhosted.org/cochlea/
 
+More examples are available in examples_ directory.
 
-.. _DEMO: https://github.com/mrkrd/cochlea/tree/master/examples/cochlea_demo.ipynb
-.. _examples: https://github.com/mrkrd/cochlea/tree/master/examples
-.. _`run_zilany2014.py`: https://github.com/mrkrd/cochlea/blob/master/examples/run_zilany2014.py
-
-
+.. _examples: ./examples
 
 
 
@@ -141,13 +123,11 @@ Installation
 
 ::
 
-  pip install cochlea
+  pip3 install cochlea3
 
-Check INSTALL.rst_ for details.
+Check INSTALL.rst_ for more details.
 
-.. _INSTALL.rst: INSTALL.rst
-
-
+.. _INSTALL.rst: ./INSTALL.rst
 
 
 
