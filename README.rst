@@ -1,4 +1,4 @@
-cochlea3
+cochlea3 -- Work In Progress!
 ========
 
 *cochlea3* is a collection of inner ear models.  All models are easily
