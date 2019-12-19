@@ -1,4 +1,4 @@
-cochlea3 -- Work In Progress!
+cochlea3 -- Work In Progress, i.e., API will change!
 ========
 
 *cochlea3* is a collection of inner ear models.  All models are easily
@@ -134,6 +134,13 @@ Check INSTALL.rst_ for more details.
 
 Spike Train Format
 ------------------
+
+All models return spike trains in a common format.  The format is
+based on standard Python data structures (list, dict) and Numpy
+arrays.  It contains of a list of dicts where each dict contains
+standard keys: 'type', 'cf', 'offset', 'duration', 'spikes'.
+
+
 
 Spike train data format is based on a standard DataFrame_ format from
 the excellent pandas_ library.  Spike trains and their meta data are

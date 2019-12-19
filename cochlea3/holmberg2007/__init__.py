@@ -13,7 +13,7 @@ from .holmberg2007_vesicles import run_holmberg2007_vesicles
 def run_holmberg2007(
         sound,
         fs,
-        anf_num,
+        output_spec,
         seed,
         cf=None,
         syn_mode='probability'
