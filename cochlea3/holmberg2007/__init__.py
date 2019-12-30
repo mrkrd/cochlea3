@@ -13,7 +13,7 @@ from .holmberg2007_vesicles import run_holmberg2007_vesicles
 def run_holmberg2007(
         sound,
         fs,
-        output_spec,
+        output,
         seed,
         cf=None,
         syn_mode='probability'
@@ -103,7 +103,10 @@ def run_holmberg2007(
         # IHCRP
         ihcrp[cf] = tw.run_ihcrp(lcr4_rolled, fs, cf)
 
-    anf_types = np.repeat(['hsr', 'msr', 'lsr'], anf_num)
+    output_types = np.repeat(
+        output.keys(),
+        map(output.values(), int)
+    )
 
     ihc_meddis2000_pars = {
         'hsr': {                # H2 fiber from Sumner et al. (2002)
@@ -158,7 +161,7 @@ def run_holmberg2007(
 
     psps = {}
     trains = []
-    for cf, anf_type in itertools.product(ihcrp.keys(), anf_types):
+    for cf, anf_type in itertools.product(ihcrp.keys(), output_types):
 
         if (syn_mode == 'quantal') or ((cf, anf_type) not in psps):
             # IHC and Synapse
