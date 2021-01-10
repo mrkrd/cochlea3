@@ -14,6 +14,16 @@
   - run_ihc()
   - run_synapse() & run_spike_generator() for each ANF type
 
+*** TODO make run_synapse() and run_spike_generator() pure
+
+- [ ] add random seed as argument
+
+*** TODO simplify flow/remove optimizations
+
+*** TODO re-optimize with toolz.memoize
+
+- [ ] custom keys function
+- [ ] cache
 
 ** TODO update docstring
 
