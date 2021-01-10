@@ -5,8 +5,9 @@
 
 * TODO Refactor =run_zilany2014=
 
-- [ ] update API
+- [X] update API
 - [ ] make it more functional
+- [ ] update docstring
 
 
 * TODO Refactor =run_zilany2009=

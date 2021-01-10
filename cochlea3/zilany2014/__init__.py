@@ -10,14 +10,16 @@ from . zilany2014_rate import run_zilany2014_rate
 def run_zilany2014(
         sound,
         fs,
-        anf_num,
-        cf,
+        lsr,
+        msr,
+        hsr,
+        cfs,
         species,
         seed,
         cohc=1,
         cihc=1,
         powerlaw='approximate',
-        ffGn=False
+        ffGn=False,
 ):
     """Run the inner ear model by [Zilany2014]_.
 
