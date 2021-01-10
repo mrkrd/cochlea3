@@ -5,9 +5,17 @@
 
 * TODO Refactor =run_zilany2014=
 
-- [X] update API
-- [ ] make it more functional
-- [ ] update docstring
+** DONE update API
+** TODO make it more functional
+
+*** current structure
+
+- run_channel() for each cf
+  - run_ihc()
+  - run_synapse() & run_spike_generator() for each ANF type
+
+
+** TODO update docstring
 
 
 * TODO Refactor =run_zilany2009=

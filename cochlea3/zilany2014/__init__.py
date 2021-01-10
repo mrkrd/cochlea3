@@ -153,13 +153,13 @@ def _run_channel(args):
                 cf=cf,
                 anf_type=anf_type,
                 powerlaw=powerlaw,
-                ffGn=ffGn
+                ffGn=ffGn,      # TODO: seed
             )
 
         # Run spike generator
         spikes = _zilany2014.run_spike_generator(
             synout=synout[anf_type],
-            fs=fs,
+            fs=fs,              # TODO: random seed
         )
 
         trains.append({
