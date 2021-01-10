@@ -76,6 +76,8 @@ def run_zilany2009(
        Acoustical Society of America, 126(5), 2390-2412.
 
     """
+    raise NotImplementedError
+
     assert np.max(sound) < 1000, "Signal should be given in Pa"
     assert sound.ndim == 1
 

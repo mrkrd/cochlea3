@@ -58,6 +58,7 @@ def run_holmberg2007(
        University Darmstadt.
 
     """
+    raise NotImplementedError
 
     assert np.max(np.abs(sound)) < 1000, "Signal should be given in Pa"
     assert sound.ndim == 1

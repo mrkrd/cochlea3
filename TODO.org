@@ -2,15 +2,18 @@
 #+AUTHOR: Marek Rudnicki
 #+CATEGORY: cochlea3
 
-* DONE Move to Python 3
 
-* TODO Update README
+* TODO Refactor =run_zilany2014=
 
-* TODO Update INSTALL
+- [ ] update API
+- [ ] make it more functional
 
+
+* TODO Refactor =run_zilany2009=
+* TODO Refactor =run_holmberg2007=
+* TODO Update documentation
 * TODO Update examples
-
 * TODO Link from cochlea
 
-  - [ ] README
-  - [ ] issues
+- [ ] README
+- [ ] issues
