@@ -1,6 +1,6 @@
 # cython: language_level=3
 
-# Copyright 2013-2014 Marek Rudnicki
+# Copyright 2013-2021 Marek Rudnicki
 
 # This file is part of cochlea.
 
@@ -17,12 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with cochlea.  If not, see <http://www.gnu.org/licenses/>.
 
+from math import ceil, floor
+
 import numpy as np
-from libc.stdlib cimport malloc
-from . import util
 import scipy.signal as dsp
 
+from cochlea3.zilany2014._util import ffGn
+
+from libc.stdlib cimport malloc
 cimport numpy as np
+
 
 cdef extern from "stdlib.h":
     void *memcpy(void *str1, void *str2, size_t n)
@@ -53,7 +57,8 @@ cdef extern from "model_Synapse.h":
         double noiseType,
         double implnt,
         double sampFreq,
-        double *synouttmp
+        double *synouttmp,
+        double *randNums
     )
     int SpikeGenerator(
         double *synouttmp,
@@ -155,7 +160,7 @@ def run_synapse(
         double cf,
         anf_type='hsr',
         powerlaw='actual',
-        ffGn=True
+        ffGn_enable=True
 ):
     """Run synapse simulation.
 
@@ -163,7 +168,7 @@ def run_synapse(
     cf: characteristic frequency
     anf_type: auditory nerve fiber type ('hsr', 'msr' or 'lsr')
     powerlaw: implementation of the powerlaw ('actual', 'approximate')
-    ffGn: enable/disable factorial Gauss noise generator
+    ffGn_enable: enable/disable factorial Gauss noise generator
 
     return: PSTH from ANF
 
@@ -184,7 +189,7 @@ def run_synapse(
         'approximate': 0
     }
 
-    if ffGn:
+    if ffGn_enable:
         noise_type = 1.
     else:
         noise_type = 0.
@@ -198,6 +203,23 @@ def run_synapse(
     synout = np.zeros_like(vihc)
     cdef double *synout_data = <double *>np.PyArray_DATA(synout)
 
+    # ffGn
+    samp_freq = 10e3
+    delaypoint = floor(7500/(cf/1e3))
+    N = ceil(
+        (len(vihc)*1 + 2*delaypoint)*(1/fs)*samp_freq
+    )
+    ffGn_arr = ffGn(
+        N,
+        1/samp_freq,
+        0.9,
+        noise_type,
+        spont[anf_type],
+    )
+    if not ffGn_arr.flags['C_CONTIGUOUS']:
+        ffGn_arr = ffGn_arr.copy(order='C')
+    cdef double *ffGn_data = <double *>np.PyArray_DATA(ffGn_arr)
+
     # Run synapse model
     Synapse(
         vihc_data,                   # ihcout
@@ -208,8 +230,9 @@ def run_synapse(
         spont[anf_type],             # spont
         noise_type,                  # noiseType
         powerlaw_map[powerlaw],      # implnt
-        10e3,                        # sampFreq
-        synout_data                  # synouttmp
+        samp_freq,                   # sampFreq
+        synout_data,                 # synouttmp
+        ffGn_data                    # randNums
     )
 
     return synout
@@ -309,21 +332,5 @@ cdef public double* decimate(
     cdef double *resampled_ptr = <double *>np.PyArray_DATA(resampled)
     cdef double *out_ptr = <double *>malloc(len(resampled)*sizeof(double))
     memcpy(out_ptr, resampled_ptr, len(resampled)*sizeof(double))
-
-    return out_ptr
-
-
-cdef public double* ffGn(int N, double tdres, double Hinput, double noiseType, double mu):
-    """util.ffGn() wrapper"""
-
-    a = util.ffGn(N, tdres, Hinput, noiseType, mu)
-
-    if not a.flags['C_CONTIGUOUS']:
-        a = a.copy(order='C')
-
-    # Copy data to output array
-    cdef double *ptr = <double *>np.PyArray_DATA(a)
-    cdef double *out_ptr = <double *>malloc(len(a)*sizeof(double))
-    memcpy(out_ptr, ptr, len(a)*sizeof(double))
 
     return out_ptr

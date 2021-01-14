@@ -3,7 +3,7 @@ import itertools
 import numpy as np
 
 from . import _zilany2014
-from . util import calc_cfs
+from . _util import calc_cfs
 
 
 def run_zilany2014_rate(

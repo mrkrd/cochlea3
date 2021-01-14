@@ -102,7 +102,7 @@ The Oryginal Note
    the immediate pool could be as low as negative, at this time there is an alert message
    print out and the concentration is set at saturated level  */
 /* --------------------------------------------------------------------------------------------*/
-double Synapse(double *ihcout, double tdres, double cf, int totalstim, int nrep, double spont, double noiseType, double implnt, double sampFreq, double *synouttmp)
+double Synapse(double *ihcout, double tdres, double cf, int totalstim, int nrep, double spont, double noiseType, double implnt, double sampFreq, double *synouttmp, double *randNums)
 {
     /* Initalize Variables */
     int z, b;
@@ -119,7 +119,7 @@ double Synapse(double *ihcout, double tdres, double cf, int totalstim, int nrep,
     double *m1, *m2, *m3, *m4, *m5;
         double *n1, *n2, *n3;
 
-    double *randNums;
+    /* double *randNums; */
 
     double *sampIHC, *ihcDims;
 
@@ -150,11 +150,11 @@ double Synapse(double *ihcout, double tdres, double cf, int totalstim, int nrep,
     /*----------------------------------------------------------*/
     /*------- Generating a random sequence ---------------------*/
     /*----------------------------------------------------------*/
-     randNums = ffGn((int)ceil((totalstim*nrep+2*delaypoint)*tdres*sampFreq),
-                     1/sampFreq,
-                     0.9,
-                     noiseType,
-                     spont);
+     /* randNums = ffGn((int)ceil((totalstim*nrep+2*delaypoint)*tdres*sampFreq), */
+     /*                 1/sampFreq, */
+     /*                 0.9, */
+     /*                 noiseType, */
+     /*                 spont); */
 
     /*----------------------------------------------------------*/
     /*----- Double Exponential Adaptation ----------------------*/
@@ -325,7 +325,7 @@ double Synapse(double *ihcout, double tdres, double cf, int totalstim, int nrep,
         synouttmp[i] = TmpSyn[i+delaypoint];
 
     free(synSampOut); free(TmpSyn);
-    free(randNums);
+    /* free(randNums); */
     free(sampIHC);
 
     return((long) ceil(totalstim*nrep));

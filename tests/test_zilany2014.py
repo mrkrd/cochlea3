@@ -5,7 +5,7 @@ import os
 from os.path import join
 
 import cochlea3.zilany2014._zilany2014 as zilany2014
-from cochlea3.zilany2014.util import ffGn
+from cochlea3.zilany2014._util import ffGn
 
 DATADIR = os.path.join(
     os.path.dirname(__file__),
@@ -73,7 +73,7 @@ def test_synapse():
         cf=cf,
         anf_type='hsr',
         powerlaw='approximate',
-        ffGn=False
+        ffGn_enable=False
     )
     meanrate = synout / (1 + 0.75e-3*synout)
 
