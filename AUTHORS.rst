@@ -1,7 +1,7 @@
 Authors and Contributors
 ========================
 
-* Marek Rudnicki <marekrud@posteo.com>
+* Marek Rudnicki <markrd@posteo.com>
 * Werner Hemmert <werner.hemmert@tum.de>
 * Marcus Holmberg
 * Muhammad S. A. Zilany

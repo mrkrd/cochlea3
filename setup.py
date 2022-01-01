@@ -41,7 +41,7 @@ setup(
     name="cochlea3",
     version="1",
     author="Marek Rudnicki",
-    author_email="marekrud@posteo.de",
+    author_email="mrkrd@posteo.de",
 
     description="Inner ear models for Python 3",
     license="GPLv3+",
