@@ -71,7 +71,7 @@ The Oryginal Note
 */
 
 #include "Python.h"
-#include "_zilany2014.h"
+#include "c_wrapper.h"
 
 #include <stdio.h>
 #include <stdlib.h>

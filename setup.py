@@ -26,9 +26,9 @@ extensions = [
         ]
     ),
     Extension(
-        "cochlea3.zilany2014._zilany2014",
+        "cochlea3.zilany2014.c_wrapper",
         [
-            "cochlea3/zilany2014/_zilany2014.pyx",
+            "cochlea3/zilany2014/c_wrapper.pyx",
             "cochlea3/zilany2014/model_IHC.c",
             "cochlea3/zilany2014/model_Synapse.c",
             "cochlea3/zilany2014/complex.c"

@@ -1,28 +1,11 @@
 # cython: language_level=3
 
-# Copyright 2013-2021 Marek Rudnicki
-
-# This file is part of cochlea.
-
-# cochlea is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# cochlea is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with cochlea.  If not, see <http://www.gnu.org/licenses/>.
-
 from math import ceil, floor
 
 import numpy as np
 import scipy.signal as dsp
 
-from cochlea3.zilany2014._util import ffGn
+from cochlea3.zilany2014.helper import ffGn
 
 from libc.stdlib cimport malloc
 cimport numpy as np
@@ -87,18 +70,18 @@ np.import_array()
 
 
 def run_ihc(
-        np.ndarray[np.float64_t, ndim=1] signal,
+        np.ndarray[np.float64_t, ndim=1] sound,
         double cf,
         double fs,
         species='cat',
-        double cohc=1.,
-        double cihc=1.
+        double c_ohc=1.,
+        double c_ihc=1.
 ):
     """Run middle ear filter, BM filters and IHC model.
 
     Parameters
     ----------
-    signal : array_like
+    sound : array_like
         Output of the middle ear filter in Pascal.
     cf : float
         Characteristic frequency in Hz.
@@ -106,7 +89,7 @@ def run_ihc(
         Sampling frequency in Hz.
     species : {'cat', 'human', 'human_glasberg1990'}
         Species.
-    cihc, cohc : float
+    c_ihc, c_ohc : float
         Degeneration parameters for IHC and OHC cells.
 
     Returns
@@ -115,43 +98,46 @@ def run_ihc(
         IHC receptor potential.
 
     """
-    if species == 'cat':
-        assert (cf > 124.9) and (cf < 40e3), "Wrong CF: 125 <= cf < 40e3, CF = %s" % str(cf)
-    elif 'human' in species:
-        assert (cf > 124.9) and (cf < 20001.), "Wrong CF: 125 <= cf <= 20e3, CF = %s" % str(cf)
+    if species == 'cat' and ((cf < 125) or (cf >= 40e3)):
+        raise RuntimeError(f"Invalid value of CF for {species}: {cf}")
+    elif species == 'human' and ((cf < 125) or (cf > 20e3)):
+        raise RuntimeError(f"Invalid value of CF for {species}: {cf}")
 
-    assert (fs >= 100e3) and (fs <= 500e3), "Wrong Fs: 100e3 <= fs <= 500e3"
-    assert (cohc >= 0) and (cohc <= 1), "0 <= cohc <= 1"
-    assert (cihc >= 0) and (cihc <= 1), "0 <= cihc <= 1"
+    if fs < 100e3 or fs > 500e3:
+        raise RuntimeError(f"Invalid value of FS: {fs}")
+    if c_ohc < 0 or c_ohc > 1:
+        raise RuntimeError(f"Invalid value of c_ohc: {c_ohc}")
+    if c_ihc < 0 or c_ihc > 1:
+        raise RuntimeError(f"Invalid value of c_ihc: {c_ihc}")
 
-    species_map = {
+    species_id = {
         'cat': 1,
         'human': 2,
         'human_glasberg1990': 3,
-    }
+    }[species]
 
     # Input sound
-    if not signal.flags['C_CONTIGUOUS']:
-        signal = signal.copy(order='C')
-    cdef double *signal_data = <double *>np.PyArray_DATA(signal)
+    if not sound.flags['C_CONTIGUOUS']:
+        sound = np.numpy.ascontiguousarray(sound)
+    cdef double *sound_data = <double *>np.PyArray_DATA(sound)
 
     # Output IHC voltage
-    ihcout = np.zeros(len(signal))
-    cdef double *ihcout_data = <double *>np.PyArray_DATA(ihcout)
+    v_ihc = np.zeros(len(sound))
+    cdef double *v_ihc_data = <double *>np.PyArray_DATA(v_ihc)
 
     IHCAN(
-        signal_data,
-        cf,
-        1,
-        1.0/fs,
-        len(signal),
-        cohc,
-        cihc,
-        species_map[species],
-        ihcout_data
+        sound_data,             # px
+        cf,                     # cf
+        1,                      # nrep
+        1.0/fs,                 # tdres
+        len(sound),             # totalstim
+        c_ohc,                  # cohc
+        c_ihc,                  # cihc
+        species_id,             # species
+        v_ihc_data,             # ihcout
     )
 
-    return ihcout
+    return v_ihc
 
 
 def run_synapse(

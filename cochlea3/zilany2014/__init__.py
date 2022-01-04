@@ -2,9 +2,13 @@
 import itertools
 import numpy as np
 
-import cochlea3.zilany2014._zilany2014 as _zilany2014
-from cochlea3.zilany2014._util import calc_cfs
-from . zilany2014_rate import run_zilany2014_rate
+from cochlea3.zilany2014.c_wrapper import (
+    run_ihc,
+)
+from cochlea3.zilany2014.helper import (
+    calc_cfs,
+)
+
 
 def run_zilany2014(
         sound,

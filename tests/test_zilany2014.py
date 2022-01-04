@@ -4,13 +4,15 @@ import scipy.io
 import os
 from os.path import join
 
-import cochlea3.zilany2014._zilany2014 as zilany2014
-from cochlea3.zilany2014._util import ffGn
-
-DATADIR = os.path.join(
-    os.path.dirname(__file__),
-    'data_zilany2014'
+from cochlea3.zilany2014.c_wrapper import (
+    run_ihc,
 )
+
+
+# from cochlea3.zilany2014._util import ffGn
+
+
+DATADIR = join(os.path.dirname(__file__), 'data_zilany2014')
 
 
 def test_ihc():
@@ -22,20 +24,20 @@ def test_ihc():
     fs = float(m['fs'])
     cf = float(m['cf'])
     sound = m['sound'].astype(float)
-    vihc_target = m['vihc']
+    v_ihc_target = m['vihc']
 
-    vihc = zilany2014.run_ihc(
-        signal=sound,
+    v_ihc = run_ihc(
+        sound=sound,
         cf=cf,
         fs=fs,
         species='cat',
-        cohc=1.,
-        cihc=1.
+        c_ohc=1.,
+        c_ihc=1.
     )
 
     assert_almost_equal(
-        vihc,
-        vihc_target,
+        v_ihc,
+        v_ihc_target,
         decimal=15
     )
 
