@@ -81,7 +81,7 @@ def run_ihc(
 
     Parameters
     ----------
-    sound : array_like
+    sound : ndarray
         Output of the middle ear filter in Pascal.
     cf : float
         Characteristic frequency in Hz.
@@ -94,7 +94,7 @@ def run_ihc(
 
     Returns
     -------
-    array_like
+    ndarray
         IHC receptor potential.
 
     """
@@ -141,22 +141,34 @@ def run_ihc(
 
 
 def run_synapse(
-        np.ndarray[np.float64_t, ndim=1] vihc,
+        np.ndarray[np.float64_t, ndim=1] v_ihc,
         double fs,
         double cf,
         anf_type='hsr',
         powerlaw='actual',
-        ffGn_enable=True
+        seed=None,
 ):
-    """Run synapse simulation.
+    """Run a model of an IHC-AN synapse.
 
-    vihc: IHC receptor potential
-    cf: characteristic frequency
-    anf_type: auditory nerve fiber type ('hsr', 'msr' or 'lsr')
-    powerlaw: implementation of the powerlaw ('actual', 'approximate')
-    ffGn_enable: enable/disable factorial Gauss noise generator
+    Parameters
+    ----------
+    v_ihc : ndarray
+        IHC receptor potential.
+    fs : float
+        Sampling frequency of ``v_ihc``.
+    cf : float
+        Characteristic frequency.
+    anf_type : {'hsr', 'msr', 'lsr'}
+        Type of an auditory nerve fiber.
+    powerlaw : {'actual', 'approximate'}
+        Implementation of the powerlaw.
+    seed : int, optional
+        Random seed for the factorial Gauss noise generator.
+        ``None`` disables the noise.
 
-    return: PSTH from ANF
+    Returns
+    -------
+        Spiking probability.
 
     """
     assert (cf > 79.9) and (cf < 40e3), "Wrong CF: 80 <= cf < 40e3, CF = %s" % str(cf)
@@ -164,64 +176,59 @@ def run_synapse(
     assert anf_type in ['hsr', 'msr', 'lsr'], "anf_type not hsr/msr/lsr"
     assert powerlaw in ['actual', 'approximate'], "powerlaw not actual/approximate"
 
-    spont = {
+    spont_rate = {
         'lsr': 0.1,
         'msr': 4.0,
         'hsr': 100.0,
-    }
+    }[anf_type]
 
-    powerlaw_map = {
+    powerlaw_id = {
         'actual': 1,
         'approximate': 0
-    }
-
-    if ffGn_enable:
-        noise_type = 1.
-    else:
-        noise_type = 0.
+    }[powerlaw]
 
     # Input IHC voltage
-    if not vihc.flags['C_CONTIGUOUS']:
-        vihc = vihc.copy(order='C')
-    cdef double *vihc_data = <double *>np.PyArray_DATA(vihc)
+    if not v_ihc.flags['C_CONTIGUOUS']:
+        v_ihc = v_ihc.copy(order='C')
+    cdef double *v_ihc_data = <double *>np.PyArray_DATA(v_ihc)
 
     # Output synapse data (spiking probabilities)
-    synout = np.zeros_like(vihc)
-    cdef double *synout_data = <double *>np.PyArray_DATA(synout)
+    p_spike = np.zeros_like(v_ihc)
+    cdef double *p_spike_data = <double *>np.PyArray_DATA(p_spike)
 
     # ffGn
-    samp_freq = 10e3
+    fs_noise = 10e3
     delaypoint = floor(7500/(cf/1e3))
     N = ceil(
-        (len(vihc)*1 + 2*delaypoint)*(1/fs)*samp_freq
+        (len(v_ihc)*1 + 2*delaypoint)*(1/fs)*samp_freq
     )
-    ffGn_arr = ffGn(
+    noise = ffGn(
         N,
-        1/samp_freq,
+        1/fs_noise,
         0.9,
         noise_type,
-        spont[anf_type],
+        spont_rate,
     )
-    if not ffGn_arr.flags['C_CONTIGUOUS']:
-        ffGn_arr = ffGn_arr.copy(order='C')
-    cdef double *ffGn_data = <double *>np.PyArray_DATA(ffGn_arr)
+    if not noise.flags['C_CONTIGUOUS']:
+        noise = np.ascontiguousarray(noise)
+    cdef double *noise_data = <double *>np.PyArray_DATA(noise)
 
     # Run synapse model
     Synapse(
-        vihc_data,                   # ihcout
-        1.0/fs,                      # tdres
-        cf,                          # cf
-        len(vihc),                   # totalstim
-        1,                           # nrep
-        spont[anf_type],             # spont
-        noise_type,                  # noiseType
-        powerlaw_map[powerlaw],      # implnt
-        samp_freq,                   # sampFreq
-        synout_data,                 # synouttmp
-        ffGn_data                    # randNums
+        v_ihc_data,             # ihcout
+        1.0/fs,                 # tdres
+        cf,                     # cf
+        len(v_ihc),             # totalstim
+        1,                      # nrep
+        spont_rate,             # spont
+        noise_type,             # noiseType (replaced by ffGn_data)
+        powerlaw_id,            # implnt
+        fs_noise,               # sampFreq
+        p_spike_data,           # synouttmp
+        noise_data              # randNums
     )
 
-    return synout
+    return p_spike
 
 
 def run_spike_generator(
@@ -259,17 +266,17 @@ def run_spike_generator(
     return spikes
 
 
-cdef public double* generate_random_numbers(long length):
-    arr = np.random.rand(length)
+# cdef public double* generate_random_numbers(long length):
+#     arr = np.random.rand(length)
 
-    if not arr.flags['C_CONTIGUOUS']:
-        arr = arr.copy(order='C')
+#     if not arr.flags['C_CONTIGUOUS']:
+#         arr = arr.copy(order='C')
 
-    cdef double *data_ptr = <double *>np.PyArray_DATA(arr)
-    cdef double *out_ptr = <double *>malloc(length * sizeof(double))
-    memcpy(out_ptr, data_ptr, length*sizeof(double))
+#     cdef double *data_ptr = <double *>np.PyArray_DATA(arr)
+#     cdef double *out_ptr = <double *>malloc(length * sizeof(double))
+#     memcpy(out_ptr, data_ptr, length*sizeof(double))
 
-    return out_ptr
+#     return out_ptr
 
 
 cdef public double* decimate(
