@@ -200,14 +200,14 @@ def run_synapse(
     fs_noise = 10e3
     delaypoint = floor(7500/(cf/1e3))
     N = ceil(
-        (len(v_ihc)*1 + 2*delaypoint)*(1/fs)*samp_freq
+        (len(v_ihc)*1 + 2*delaypoint)*(1/fs)*fs_noise
     )
     noise = ffGn(
-        N,
-        1/fs_noise,
-        0.9,
-        noise_type,
-        spont_rate,
+        N,                      # N
+        1/fs_noise,             # tdres
+        0.9,                    # Hinput
+        seed,                   # noiseType
+        spont_rate,             # mu
     )
     if not noise.flags['C_CONTIGUOUS']:
         noise = np.ascontiguousarray(noise)
@@ -221,7 +221,7 @@ def run_synapse(
         len(v_ihc),             # totalstim
         1,                      # nrep
         spont_rate,             # spont
-        noise_type,             # noiseType (replaced by ffGn_data)
+        123,                    # noiseType (unused, replaced by ffGn_data)
         powerlaw_id,            # implnt
         fs_noise,               # sampFreq
         p_spike_data,           # synouttmp
@@ -266,17 +266,17 @@ def run_spike_generator(
     return spikes
 
 
-# cdef public double* generate_random_numbers(long length):
-#     arr = np.random.rand(length)
+cdef public double* generate_random_numbers(long length):
+    arr = np.random.rand(length)
 
-#     if not arr.flags['C_CONTIGUOUS']:
-#         arr = arr.copy(order='C')
+    if not arr.flags['C_CONTIGUOUS']:
+        arr = arr.copy(order='C')
 
-#     cdef double *data_ptr = <double *>np.PyArray_DATA(arr)
-#     cdef double *out_ptr = <double *>malloc(length * sizeof(double))
-#     memcpy(out_ptr, data_ptr, length*sizeof(double))
+    cdef double *data_ptr = <double *>np.PyArray_DATA(arr)
+    cdef double *out_ptr = <double *>malloc(length * sizeof(double))
+    memcpy(out_ptr, data_ptr, length*sizeof(double))
 
-#     return out_ptr
+    return out_ptr
 
 
 cdef public double* decimate(

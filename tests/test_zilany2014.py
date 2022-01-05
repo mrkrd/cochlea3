@@ -6,6 +6,7 @@ from os.path import join
 
 from cochlea3.zilany2014.c_wrapper import (
     run_ihc,
+    run_synapse,
 )
 
 
@@ -15,7 +16,7 @@ from cochlea3.zilany2014.c_wrapper import (
 DATADIR = join(os.path.dirname(__file__), 'data_zilany2014')
 
 
-def test_ihc():
+def test_run_ihc():
 
     m = scipy.io.loadmat(
         join(DATADIR, 'data_zilany2014.mat'),
@@ -42,7 +43,7 @@ def test_ihc():
     )
 
 
-def test_synapse():
+def test_run_synapse():
     """test_synapse()
 
     This function has problems, because it's using matlab
@@ -66,22 +67,22 @@ def test_synapse():
     )
     fs = float(m['fs'])
     cf = float(m['cf'])
-    vihc = m['vihc']
-    meanrate_target = m['meanrate']
+    v_ihc = m['vihc']
+    mean_rate_target = m['meanrate']
 
-    synout = zilany2014.run_synapse(
-        vihc=vihc,
+    p_spike = run_synapse(
+        v_ihc=v_ihc,
         fs=fs,
         cf=cf,
         anf_type='hsr',
         powerlaw='approximate',
-        ffGn_enable=False
+        seed=None
     )
-    meanrate = synout / (1 + 0.75e-3*synout)
+    mean_rate = p_spike / (1 + 0.75e-3*p_spike)
 
     assert_almost_equal(
-        meanrate,
-        meanrate_target,
+        mean_rate,
+        mean_rate_target,
         decimal=10
     )
 

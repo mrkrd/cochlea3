@@ -5,22 +5,34 @@ TODO: Unit test against the oryginal.
 """
 
 import numpy as np
-from numpy.random import randn
+from numpy.random import SeedSequence, default_rng
 from scipy.signal import resample
 from numpy.fft import fft, ifft
 
 
 def ffGn(N, tdres, Hinput, noiseType, mu, sigma=1, random_debug=None):
+    """Factorial Gauss noise generator.
 
+    This implementation is an exact re-implementations of the original
+    MATLAB function.
+
+    Parameters
+    ----------
+    noiseType : int or tuple
+        Seed for Numpy's random number generator.
+
+    """
     assert (N > 0)
     assert (tdres < 1)
     assert (Hinput >= 0) and (Hinput <= 2)
 
-    # Here we change the meaning of `noiseType', if it's 0, then we
-    # return no noise at all.  If necessary, the seed can be set
-    # outside by calling np.radnom.seed().
-    if noiseType == 0:
+    # Here we change the meaning of `noiseType', if it's ``None``,
+    # then we return no noise at all, just zeros.  Otherwise it's used
+    # as a seed for the random number generator.
+    if noiseType is None:
         return np.zeros(N)
+
+    rng = default_rng(SeedSequence(noiseType))
 
     # Downsampling No. of points to match with those of Scott jackson (tau 1e-1)
     resamp = int(np.ceil(1e-1 / tdres))
@@ -41,7 +53,7 @@ def ffGn(N, tdres, Hinput, noiseType, mu, sigma=1, random_debug=None):
     if H == 0.5:
         # If H=0.5, then fGn is equivalent to white Gaussian noise.
         if random_debug is None:
-            y = randn(N)
+            y = rng.standard_normal(N)
         else:
             y = random_debug
     else:
@@ -58,7 +70,7 @@ def ffGn(N, tdres, Hinput, noiseType, mu, sigma=1, random_debug=None):
         Zmag = np.sqrt(Zmag)
 
         if random_debug is None:
-            Z = Zmag * (randn(Nfft) + 1j*randn(Nfft))
+            Z = Zmag * (rng.standard_normal(Nfft) + 1j*rng.standard_normal(Nfft))
         else:
             Z = Zmag * (random_debug + 1j*random_debug)
 
