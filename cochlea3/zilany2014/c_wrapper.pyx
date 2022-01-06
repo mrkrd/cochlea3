@@ -285,19 +285,6 @@ def run_spike_generator(
     return spikes
 
 
-cdef public double* generate_random_numbers(long length):
-    arr = np.random.rand(length)
-
-    if not arr.flags['C_CONTIGUOUS']:
-        arr = arr.copy(order='C')
-
-    cdef double *data_ptr = <double *>np.PyArray_DATA(arr)
-    cdef double *out_ptr = <double *>malloc(length * sizeof(double))
-    memcpy(out_ptr, data_ptr, length*sizeof(double))
-
-    return out_ptr
-
-
 cdef public double* decimate(
     int k,
     double *signal,
