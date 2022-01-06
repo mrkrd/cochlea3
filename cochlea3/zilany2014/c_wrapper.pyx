@@ -3,6 +3,7 @@
 from math import ceil, floor
 
 import numpy as np
+from numpy.random import SeedSequence, default_rng
 import scipy.signal as dsp
 
 from cochlea3.zilany2014.helper import ffGn
@@ -48,7 +49,8 @@ cdef extern from "model_Synapse.h":
         double tdres,
         int totalstim,
         int nrep,
-        double *sptime
+        double *sptime,
+        double *randNums
     )
 
 
@@ -232,36 +234,53 @@ def run_synapse(
 
 
 def run_spike_generator(
-        np.ndarray[np.float64_t, ndim=1] synout,
-        double fs
+        np.ndarray[np.float64_t, ndim=1] p_spike,
+        double fs,
+        seed=None
 ):
     """Run spike generator.
 
-    synout: synapse output
-    fs: sampling frequency
+    Parameters
+    ----------
+    p_spike : ndarray
+        Spiking probabilities.
+    fs : float
+        Sampling frequency.
+    seed : int
+        Random seed.
 
-    return: sptime
+    Returns
+    -------
+    ndarray
+        Spike times.
 
     """
-    # Input IHC voltage
-    if not synout.flags['C_CONTIGUOUS']:
-        synout = synout.copy(order='C')
-    cdef double *synout_data = <double *>np.PyArray_DATA(synout)
+    # Input spiking probability
+    if not p_spike.flags['C_CONTIGUOUS']:
+        p_spike = np.ascontiguousarray(p_spike)
+    cdef double *p_spike_data = <double *>np.PyArray_DATA(p_spike)
 
     # Output spikes (signal)
-    sptimes = np.zeros(int(np.ceil(len(synout)/0.00075/fs)))
-    cdef double *sptimes_data = <double *>np.PyArray_DATA(sptimes)
+    spike_signal = np.zeros(int(np.ceil(len(p_spike)/0.00075/fs)))
+    cdef double *spike_signal_data = <double *>np.PyArray_DATA(spike_signal)
+
+    # Random numbers
+    rng = default_rng(SeedSequence(seed))
+    random_length = ceil(len(p_spike)/0.00075/fs) + 1
+    random_numbers = rng.random_sample(random_length)
+    cdef double *random_numbers_data = <double *>np.PyArray_DATA(random_numbers)
 
     # Run synapse model
     SpikeGenerator(
-        synout_data,            # synouttmp
+        p_spike_data,           # synouttmp
         1./fs,                  # tdres
-        len(synout),            # totalstim
+        len(p_spike),           # totalstim
         1,                      # nprep
-        sptimes_data            # sptime
+        spike_signal_data,      # sptime
+        random_numbers_data     # randNums
     )
 
-    spikes = np.array(sptimes[sptimes != 0])
+    spikes = np.array(spike_signal[spike_signal != 0])
 
     return spikes
 

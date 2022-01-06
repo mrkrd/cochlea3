@@ -1,9 +1,3 @@
-"""This ffGn implementation based on the oryginal MATLAB code.
-
-TODO: Unit test against the oryginal.
-
-"""
-
 import numpy as np
 from numpy.random import SeedSequence, default_rng
 from scipy.signal import resample
@@ -20,6 +14,9 @@ def ffGn(N, tdres, Hinput, noiseType, mu, sigma=1, random_debug=None):
     ----------
     noiseType : int or tuple
         Seed for Numpy's random number generator.
+    random_debug : ndarray
+        Random that if not None will be used instead of internal
+        random generator.  Used for reproducible testing.
 
     """
     assert (N > 0)

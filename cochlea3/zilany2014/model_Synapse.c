@@ -338,14 +338,14 @@ double Synapse(double *ihcout, double tdres, double cf, int totalstim, int nrep,
    http://www.urmc.rochester.edu/smd/Nanat/faculty-research/lab-pages/LaurelCarney/auditory-models.cfm
 */
 
-int SpikeGenerator(double *synouttmp, double tdres, int totalstim, int nrep, double *sptime)
+int SpikeGenerator(double *synouttmp, double tdres, int totalstim, int nrep, double *sptime, double *randNums)
 {
         double  c0,s0,c1,s1,dead;
     int     nspikes,k,NoutMax,Nout,deadtimeIndex,randBufIndex;
     double      deadtimeRnd, endOfLastDeadtime, refracMult0, refracMult1, refracValue0, refracValue1;
     double      Xsum, unitRateIntrvl, countTime, DT;
 
-    double *randNums;
+    /* double *randNums; */
 
     c0      = 0.5;
         s0      = 0.001;
@@ -357,7 +357,7 @@ int SpikeGenerator(double *synouttmp, double tdres, int totalstim, int nrep, dou
     Nout = 0;
     NoutMax = (long) ceil(totalstim*nrep*tdres/dead);
 
-    randNums = generate_random_numbers(NoutMax+1);
+    /* randNums = generate_random_numbers(NoutMax+1); */
     randBufIndex = 0;
 
         /* Calculate useful constants */
@@ -407,7 +407,7 @@ int SpikeGenerator(double *synouttmp, double tdres, int totalstim, int nrep, dou
                 }
         } /* End of rate vector loop */
 
-        free(randNums);
+        /* free(randNums); */
         nspikes = Nout;  /* Number of spikes that occurred. */
         return(nspikes);
 }

@@ -8,9 +8,7 @@ from cochlea3.zilany2014.c_wrapper import (
     run_ihc,
     run_synapse,
 )
-
-
-# from cochlea3.zilany2014._util import ffGn
+from cochlea3.zilany2014.helper import ffGn
 
 
 DATADIR = join(os.path.dirname(__file__), 'data_zilany2014')
@@ -78,7 +76,7 @@ def test_run_synapse():
         powerlaw='approximate',
         seed=None
     )
-    mean_rate = p_spike / (1 + 0.75e-3*p_spike)
+    mean_rate = p_spike / (1 + 0.00075*p_spike)
 
     assert_almost_equal(
         mean_rate,
@@ -93,16 +91,16 @@ def test_ffGn():
         squeeze_me=True
     )
 
-    r = m['random_ffGn']
-    y = m['y_ffGn']
+    random_numbers = m['random_ffGn']
+    y_target = m['y_ffGn']
 
     y_actual = ffGn(
         N=16,
         tdres=0.1,
         Hinput=0.2,
-        noiseType=1,
+        noiseType=42,
         mu=10,
-        random_debug=r
+        random_debug=random_numbers
     )
 
-    assert_almost_equal(y_actual, y, decimal=13)
+    assert_almost_equal(y_actual, y_target, decimal=13)
