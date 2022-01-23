@@ -4,19 +4,18 @@ import numpy as np
 
 from cochlea3.zilany2014.c_wrapper import (
     run_ihc,
-)
-from cochlea3.zilany2014.helper import (
-    calc_cfs,
+    run_synapse,
+    run_spike_generator,
 )
 
 
 def run_zilany2014(
         sound,
         fs,
+        cfs,
         lsr,
         msr,
         hsr,
-        cfs,
         species,
         seed,
         cohc=1,
@@ -43,13 +42,8 @@ def run_zilany2014(
         channel (CF), (HSR#, MSR#, LSR#).  For example, (100, 75, 25)
         means that we want 100 HSR fibers, 75 MSR fibers and 25 LSR
         fibers per CF.
-    cf : float or array_like or tuple
-        The center frequency(s) of the simulated auditory nerve fibers.
-        If float, then defines a single frequency channel.  If
-        array_like (e.g. list or ndarray), then the frequencies are
-        used.  If tuple, then must have exactly 3 elements (min_cf,
-        max_cf, num_cf) and the frequencies are calculated using the
-        Greenwood function.
+    cfs : array_like
+        A list of center frequencies.
     species : {'cat', 'human', 'human_glasberg1990'}
         Species.
     seed : int
@@ -86,10 +80,6 @@ def run_zilany2014(
     assert sound.ndim == 1
     assert species in ('cat', 'human', 'human_glasberg1990')
 
-    np.random.seed(seed)
-
-    # TODO: use cochlea.greenwood() instead
-    cfs = calc_cfs(cf, species)
 
     channel_args = [
         {
@@ -117,6 +107,10 @@ def run_zilany2014(
     spike_trains = list(trains)
 
     return spike_trains
+
+
+def _run_fiber(kwargs):
+
 
 
 def _run_channel(args):
